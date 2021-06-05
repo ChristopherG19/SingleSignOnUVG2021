@@ -14,11 +14,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 
 class MainActivity : AppCompatActivity() {
+
+    companion object{
+        private  const val RC_SIGN_IN=120
+    }
+
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
     private val TAG: String = "Sign In"
-    private val RC_SIGN_IN: Int = 1
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,12 +30,12 @@ class MainActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("AIzaSyCtGctg8AODTPUx_mc3NYQ8EDS-RH9Vz3U")
+            .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
-
+        auth = FirebaseAuth.getInstance()
         var btnIniciar = findViewById<Button>(R.id.btnIniciarSesion)
         btnIniciar.setOnClickListener { signIn() }
     }
@@ -45,7 +48,6 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
@@ -56,7 +58,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Inicio exitoso",Toast.LENGTH_SHORT).show()
             } catch (e: ApiException) {
                 // Google Sign In failed, update UI appropriately
-                Log.w(TAG, "Google sign in failed", e)
+                Log.w(TAG, "Error al iniciar sesión", e)
             }
         }
     }
@@ -69,6 +71,8 @@ class MainActivity : AppCompatActivity() {
                 Log.d(TAG, "signInWithCredential:success")
                 val user = auth.currentUser
                 //updateUI(user)
+                val intent = Intent(this, MainActivity2::class.java)
+                startActivity(intent)
             } else {
                 // If sign in fails, display a message to the user.
                 Log.w(TAG, "signInWithCredential:failure", task.exception)
